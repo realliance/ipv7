@@ -13,6 +13,7 @@ defmodule User.Model.User do
   def changeset(:register, user, params) do
     user
     |> Ecto.Changeset.cast(params, [:email, :name, :password])
+    |> put_pass_hash
     |> Ecto.Changeset.validate_required([:email, :name, :password])
   end
 
@@ -21,4 +22,11 @@ defmodule User.Model.User do
     |> Ecto.Changeset.cast(params, [:email, :name, :password, :points])
     |> Ecto.Changeset.validate_required([:email, :name, :password, :points])
   end
+
+  defp put_pass_hash(%Ecto.Changeset{valid?: true, changes:
+    %{password: password}} = changeset) do
+    Ecto.Changeset.change(changeset, Argon2.add_hash(password, [hash_key: :password]))
+  end
+
+  defp put_pass_hash(changeset), do: changeset
 end

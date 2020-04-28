@@ -7,14 +7,6 @@ defmodule User.Router do
 
   alias User.{Controller}
 
-  get "/" do
-    IO.puts("test")
-
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(200, Poison.encode!(%{text: "Hello!"}))
-  end
-
   post "/register" do
     {status, body} =
       case Controller.register(conn.body_params) do
@@ -22,14 +14,29 @@ defmodule User.Router do
         {:error, changeset} -> {400, %{ errors: interpret_changeset_errors(changeset.errors) }}
       end
 
-    conn
-    |> put_resp_content_type("application/json")
-    |> send_resp(status, Poison.encode!(body))
+    respond(conn, status, body)
+  end
+  
+  post "/login" do
+    atom_body = process_body(conn.body_params)
+    {status, body} =
+      case Controller.login(atom_body) do
+        {true, user} -> {200, %{ user: %{ email: user.email, name: user.name, points: user.points } }}
+        {false, _} -> {400, %{ errors: "Invalid Email or Password" }}
+      end
+
+    respond(conn, status, body)
   end
 
   match _ do
     conn
     |> send_resp(404, "404 not Found")
+  end
+
+  defp respond(conn, status, body) do
+    conn
+      |> put_resp_content_type("application/json")
+      |> send_resp(status, Poison.encode!(body))
   end
 
   defp interpret_changeset_errors(list, result \\ %{})
@@ -42,4 +49,8 @@ defmodule User.Router do
     { name, { error, _}} = entry
     interpret_changeset_errors(tail, Map.put(result, name, error))
   end
+
+  defp process_body(body), do:
+    body
+    |> Enum.reduce(%{}, fn ({key, val}, acc) -> Map.put(acc, String.to_atom(key), val) end)
 end

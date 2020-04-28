@@ -4,8 +4,17 @@ defmodule User.Controller do
 
   def register(params) do
     user = %User{}
-    changeset = User.changeset(:register, user, params)
-    result = Repo.insert(changeset)
-    result
+    User.changeset(:register, user, params)
+      |> Repo.insert
   end
+
+  def login(%{password: password} = params) do
+    case get_user(params) do
+      nil -> {false, nil}
+      user -> {Argon2.verify_pass(password, user.password), user}
+    end
+  end
+
+  defp get_user(params), do:
+    Repo.get_by(User, Map.delete(params, :password))
 end

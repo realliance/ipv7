@@ -25,6 +25,7 @@ defmodule User.MixProject do
       {:poison, "~> 3.0"},
       {:plug, "~> 1.6"},
       {:cowboy, "~> 2.4"},
+      {:argon2_elixir, "~> 2.0"},
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
       {:plug_cowboy, "~> 2.0"}
