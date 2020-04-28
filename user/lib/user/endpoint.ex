@@ -29,10 +29,5 @@ defmodule User.Endpoint do
     end
   end
 
-  Router.forward("/bot", to: User.Router)
-
-  match _ do
-    conn
-    |> send_resp(404, "404 not Found")
-  end
+  Router.forward("/", to: User.Router)
 end

@@ -7,7 +7,8 @@ defmodule User.Application do
 
   def start(_type, _args) do
     children = [
-      User.Endpoint
+      User.Endpoint,
+      User.Repo
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
