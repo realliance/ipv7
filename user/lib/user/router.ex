@@ -18,11 +18,22 @@ defmodule User.Router do
   end
   
   post "/login" do
-    atom_body = process_body(conn.body_params)
+    body_params = process_body(conn.body_params)
     {status, body} =
-      case Controller.login(atom_body) do
+      case Controller.login(body_params) do
         {true, user} -> {200, %{ user: %{ email: user.email, name: user.name, points: user.points } }}
         {false, _} -> {400, %{ errors: "Invalid Email or Password" }}
+      end
+
+    respond(conn, status, body)
+  end
+
+  put "/award_points" do
+    body_params = process_body(conn.body_params)
+    {status, body} =
+      case Controller.award_points(body_params) do
+        {:ok, user} -> {200, %{ user: %{ email: user.email, name: user.name, points: user.points } }}
+        {_, _} -> {400, %{ errors: "Unknown User" }}
       end
 
     respond(conn, status, body)

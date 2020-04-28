@@ -19,8 +19,13 @@ defmodule User.Model.User do
 
   def changeset(:update, user, params) do
     user
-    |> Ecto.Changeset.cast(params, [:email, :name, :password, :points])
-    |> Ecto.Changeset.validate_required([:email, :name, :password, :points])
+    |> Ecto.Changeset.cast(params, [:email, :name, :password])
+    |> Ecto.Changeset.validate_required([:email, :name, :password])
+  end
+
+  def changeset(:award_points, user, params) do
+    user
+    |> Ecto.Changeset.cast(params, [:points])
   end
 
   defp put_pass_hash(%Ecto.Changeset{valid?: true, changes:

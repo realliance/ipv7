@@ -15,6 +15,22 @@ defmodule User.Controller do
     end
   end
 
+  def award_points(%{id: _id, points: points} = params) do
+    case get_user(params) do
+      nil -> {:no_user_found, nil}
+      user -> user
+                |> update_user(:award_points, %{ points: points + user.points})
+    end
+  end
+
+  defp update_user(user, changeset, params) do
+    User.changeset(changeset, user, params)
+      |> Repo.update
+  end
+
+  defp get_user(%{id: id} = _params), do:
+    Repo.get(User, id)
+
   defp get_user(params), do:
     Repo.get_by(User, Map.delete(params, :password))
 end
