@@ -8,6 +8,7 @@
 ## Getting Started
 ```
 npm install
+lein deps
 lein sass4clj once
 npx shadow-cljs watch app
 ```
