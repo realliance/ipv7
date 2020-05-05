@@ -1,4 +1,4 @@
-defmodule UserModelTest do
+defmodule ModelTest do
   use User.RepoCase
 
   alias User.{Factory, Model.User}

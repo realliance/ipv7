@@ -8,7 +8,7 @@ defmodule User.Controller do
     |> Repo.insert()
   end
 
-  def login(%{password: password} = params) do
+  def login(%{email: _email, password: password} = params) do
     case get_user(params) do
       nil -> {false, nil}
       user -> {Argon2.verify_pass(password, user.password), user}
@@ -33,5 +33,5 @@ defmodule User.Controller do
 
   defp get_user(%{id: id} = _params), do: Repo.get(User, id)
 
-  defp get_user(params), do: Repo.get_by(User, Map.delete(params, :password))
+  defp get_user(params), do: Repo.get_by(User, %{ email: params[:email] })
 end

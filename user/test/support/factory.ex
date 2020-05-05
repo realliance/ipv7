@@ -1,15 +1,15 @@
 defmodule User.Factory do
-  alias User.Repo
-  alias Ffaker.En.Name
-  alias Ffaker.En.Internet
+  alias User.{Repo, Model.User}
+  alias Faker.Name
+  alias Faker.Internet
 
   # Factories
 
   def build(:user) do
-    %User.Model.User{
+    %User{
       email: Internet.email,
       name: Name.name,
-      password: Internet.password
+      password: Internet.user_name
     }
   end
 
@@ -20,7 +20,7 @@ defmodule User.Factory do
   end
 
   def params(factory_name) do
-    build(factory_name) |> Map.from_struct
+    build(factory_name) |> Map.from_struct |> Map.delete(:id)
   end
 
   def params(factory_name, attributes) do
@@ -31,7 +31,17 @@ defmodule User.Factory do
     factory_name |> build() |> struct(attributes)
   end
 
-  def insert!(factory_name, attributes \\ []) do
+  # Insert Factories
+
+  def insert!(factory_name, attributes \\ [])
+
+  def insert!(:user, attributes) do
+    build(:user, attributes)
+      |> Ecto.Changeset.change(Argon2.add_hash(attributes[:password], hash_key: :password))
+      |> Repo.insert!
+  end
+
+  def insert!(factory_name, attributes) do
     Repo.insert! build(factory_name, attributes)
   end
 end

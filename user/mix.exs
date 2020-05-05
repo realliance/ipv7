@@ -8,7 +8,8 @@ defmodule User.MixProject do
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      elixirc_paths: elixirc_paths(Mix.env())
+      elixirc_paths: elixirc_paths(Mix.env()),
+      aliases: aliases()
     ]
   end
 
@@ -30,7 +31,13 @@ defmodule User.MixProject do
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:ffaker, "~> 0.3.0", only: [:test]}
+      {:faker, "~> 0.13", only: :test}
+    ]
+  end
+
+  defp aliases do
+    [
+     test: ["ecto.create --quiet", "ecto.migrate", "test"],
     ]
   end
 

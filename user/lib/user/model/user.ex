@@ -27,9 +27,9 @@ defmodule User.Model.User do
     |> Ecto.Changeset.cast(params, [:points])
   end
 
-  defp put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
+  def put_pass_hash(%Ecto.Changeset{valid?: true, changes: %{password: password}} = changeset) do
     Ecto.Changeset.change(changeset, Argon2.add_hash(password, hash_key: :password))
   end
 
-  defp put_pass_hash(changeset), do: changeset
+  def put_pass_hash(changeset), do: changeset
 end
