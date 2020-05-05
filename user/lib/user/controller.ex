@@ -33,5 +33,5 @@ defmodule User.Controller do
 
   defp get_user(%{id: id} = _params), do: Repo.get(User, id)
 
-  defp get_user(params), do: Repo.get_by(User, %{ email: params[:email] })
+  defp get_user(params), do: Repo.get_by(User, %{email: params[:email]})
 end

@@ -14,9 +14,12 @@ defmodule ControllerTest do
     response = Controller.register(params)
     assert match?({:ok, _}, response)
     {:ok, user} = response
-    uid = Map.from_struct(user)
-            |> Map.get(:id)
-    query = Query.from u in User, where: u.id == ^uid
+
+    uid =
+      Map.from_struct(user)
+      |> Map.get(:id)
+
+    query = Query.from(u in User, where: u.id == ^uid)
     assert Repo.exists?(query)
   end
 
@@ -45,8 +48,11 @@ defmodule ControllerTest do
 
   test "award_points should respond with ok on success" do
     user_params = Factory.params(:user)
-    user = Factory.insert!(:user, user_params)
-            |> Map.from_struct
+
+    user =
+      Factory.insert!(:user, user_params)
+      |> Map.from_struct()
+
     func_params = %{id: user[:id], points: Enum.random(1..255)}
     response = Controller.award_points(func_params)
     assert match?({:ok, _}, response)
@@ -54,14 +60,20 @@ defmodule ControllerTest do
 
   test "award_points should increase the user's points by the given amount" do
     user_params = Factory.params(:user)
-    user = Factory.insert!(:user, user_params)
-            |> Map.from_struct
+
+    user =
+      Factory.insert!(:user, user_params)
+      |> Map.from_struct()
+
     amount = Enum.random(1..255)
     func_params = %{id: user[:id], points: amount}
     {:ok, new_user} = Controller.award_points(func_params)
-    user_points = new_user
-                    |> Map.from_struct
-                    |> Map.get(:points)
+
+    user_points =
+      new_user
+      |> Map.from_struct()
+      |> Map.get(:points)
+
     assert user_points == user[:points] + amount
   end
 

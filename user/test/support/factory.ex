@@ -7,24 +7,24 @@ defmodule User.Factory do
 
   def build(:user) do
     %User{
-      email: Internet.email,
-      name: Name.name,
-      password: Internet.user_name
+      email: Internet.email(),
+      name: Name.name(),
+      password: Internet.user_name()
     }
   end
 
   # Helper Functions to Overload Attributes and Insert
 
   def lacking_param(factory_name, attribute) do
-    build(factory_name) |> Map.from_struct |> Map.delete(attribute)
+    build(factory_name) |> Map.from_struct() |> Map.delete(attribute)
   end
 
   def params(factory_name) do
-    build(factory_name) |> Map.from_struct |> Map.delete(:id)
+    build(factory_name) |> Map.from_struct() |> Map.delete(:id)
   end
 
   def params(factory_name, attributes) do
-    build(factory_name, attributes) |> Map.from_struct
+    build(factory_name, attributes) |> Map.from_struct()
   end
 
   def build(factory_name, attributes) do
@@ -36,12 +36,14 @@ defmodule User.Factory do
   def insert!(factory_name, attributes \\ [])
 
   def insert!(:user, attributes) do
-    build(:user, attributes)
-      |> Ecto.Changeset.change(Argon2.add_hash(attributes[:password], hash_key: :password))
-      |> Repo.insert!
+    params = params(:user, attributes)
+
+    build(:user, params)
+    |> Ecto.Changeset.change(Argon2.add_hash(params[:password], hash_key: :password))
+    |> Repo.insert!()
   end
 
   def insert!(factory_name, attributes) do
-    Repo.insert! build(factory_name, attributes)
+    Repo.insert!(build(factory_name, attributes))
   end
 end

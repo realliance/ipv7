@@ -2,8 +2,14 @@ defmodule User.Router do
   use Plug.Router
 
   plug(:match)
+
+  plug(Plug.Parsers,
+    parsers: [:json],
+    pass: ["application/json"],
+    json_decoder: Poison
+  )
+
   plug(:dispatch)
-  plug(Plug.Parsers, parsers: [:urlencoded, :json], json_decoder: Poison)
 
   alias User.{Controller}
 
