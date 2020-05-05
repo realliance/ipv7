@@ -20,7 +20,6 @@ defmodule User.Model.User do
   def changeset(:update, user, params) do
     user
     |> Ecto.Changeset.cast(params, [:email, :name, :password])
-    |> Ecto.Changeset.validate_required([:email, :name, :password])
   end
 
   def changeset(:award_points, user, params) do

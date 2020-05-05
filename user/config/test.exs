@@ -3,6 +3,6 @@ import Config
 config :user, User.Repo,
   username: "postgres",
   password: "postgres",
-  database: "myapp_test",
+  database: "users",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox

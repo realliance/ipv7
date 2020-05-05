@@ -24,6 +24,7 @@ defmodule User.Endpoint do
 
   def start_link(_opts) do
     with {:ok, [port: port] = config} <- Application.fetch_env(:user, __MODULE__) do
+      Logger.info("Environment: #{Mix.env()}")
       Logger.info("Starting server at http://localhost:#{port}/")
       Cowboy.http(__MODULE__, [], config)
     end
