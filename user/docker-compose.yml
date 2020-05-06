@@ -1,7 +1,15 @@
 version: '3.1'
 
 services:
-
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    environment:
+      SWAGGER_JSON: /foo/api.yml
+      BASE_URL: /api
+    volumes:
+      - ./:/foo
+    ports:
+      - "4000:8080"
   db:
     image: postgres:12-alpine
     restart: always

@@ -1,0 +1,56 @@
+openapi: 3.0.0
+info:
+  version: 1.0
+  title: IPv8 User Service
+  description: Backend service for user related functionality
+
+servers:
+  - url: https://ipv8.realliance.net/api/users
+
+paths:
+  /register:
+    post:
+      description: Registers a new User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object 
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string    
+      responses:
+        '200':
+          description: Registration was successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+        '400':
+          description: Invalid parameter was passed. Returns an object containing keys of the fields that were incorrect
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      password:
+                        type: string
