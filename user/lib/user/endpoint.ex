@@ -6,6 +6,7 @@ defmodule User.Endpoint do
   require Logger
 
   plug(:match)
+  plug CORSPlug
 
   plug(Parsers,
     parsers: [:json],
