@@ -16,7 +16,7 @@ defmodule User.Router do
   post "/register" do
     {status, body} =
       case Controller.register(conn.body_params) do
-        {:ok, _} -> {200, %{status: "Registration Successful"}}
+        {:ok, user} -> {200, %{user: limit_user_return(user)}}
         {:error, changeset} -> {400, %{errors: interpret_changeset_errors(changeset.errors)}}
       end
 
@@ -28,7 +28,7 @@ defmodule User.Router do
 
     {status, body} =
       case Controller.login(body_params) do
-        {true, user} -> {200, %{user: %{email: user.email, name: user.name, points: user.points}}}
+        {true, user} -> {200, %{user: limit_user_return(user)}}
         {false, _} -> {400, %{errors: "Invalid Email or Password"}}
       end
 
@@ -40,7 +40,7 @@ defmodule User.Router do
 
     {status, body} =
       case Controller.award_points(body_params) do
-        {:ok, user} -> {200, %{user: %{email: user.email, name: user.name, points: user.points}}}
+        {:ok, user} -> {200, %{user: limit_user_return(user)}}
         {_, _} -> {400, %{errors: "Unknown User"}}
       end
 
@@ -50,6 +50,11 @@ defmodule User.Router do
   match _ do
     conn
     |> send_resp(404, "404 not Found")
+  end
+
+  defp limit_user_return(user) do
+    user
+      |> Map.take([:id, :name, :email, :points])
   end
 
   defp respond(conn, status, body) do

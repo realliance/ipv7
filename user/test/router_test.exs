@@ -109,7 +109,7 @@ defmodule RouterTest do
 
   test "PUT /award_points should return 400 (Bad Request) when given invalid params" do
     body_params =
-      %{id: -1, points: 5}
+      %{id: Ecto.UUID.generate(), points: 5}
       |> Poison.encode!()
 
     connection =

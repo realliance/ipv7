@@ -78,7 +78,7 @@ defmodule ControllerTest do
   end
 
   test "award_points should return :no_user_found when given an invalid id" do
-    response = Controller.award_points(%{id: -1, points: 0})
+    response = Controller.award_points(%{id: Ecto.UUID.generate(), points: 0})
     assert match?({:no_user_found, _}, response)
   end
 end

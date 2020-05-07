@@ -1,5 +1,14 @@
+defmodule User.Schema do
+  defmacro __using__(_) do
+    quote do
+      use Ecto.Schema
+      @primary_key {:id, :binary_id, autogenerate: true}
+    end
+  end
+end
+
 defmodule User.Model.User do
-  use Ecto.Schema
+  use User.Schema
 
   schema "users" do
     field(:email)
