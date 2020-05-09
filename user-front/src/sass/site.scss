@@ -4,49 +4,32 @@
 
 // @import 'profile';
 
+@import '../../node_modules/@ajusa/lit/dist/lit';
+
 // You can use any sass features, like variables, for instance:
 $font-stack: sans-serif;
-$base-font-size: 1.125em;
+$font-color: #272932;
+$primary-color: #3772FF;
 
-.body-container {
+// Font Overrides
+body, h1, h2, h3, h4 {
   font-family: $font-stack;
-  max-width: 800px;
-  margin: 0 auto;
-  padding-top: 72px;
-  -webkit-font-smoothing: antialiased;
-  font-size: $base-font-size;
-  color: #333;
-  line-height: 1.5em;
+  color: $font-color;
 }
 
-a.navbar-item {
-  margin-left: 0.25em;
-  margin-right: 0.25em;
-  color: #333;
+.c {
+  font-family: $font-stack;
 }
 
-h1, h2, h3 {
-  color: #000;
-}
-
-h1 {
-  font-size: $base-font-size + 1.375;
-}
-
-h2 {
-  font-size: $base-font-size + 0.875;
-}
-
-h3 {
-  font-size: $base-font-size + 0.125;
+.btn {
+  font-family: $font-stack;
 }
 
 a {
-  text-decoration: none;
-  color: #09f;
+  color: $font-color;
+}
 
- // nesting is also supported
-  &:hover {
-    text-decoration: underline;
-  }
+.btn.primary {
+  background-color: $primary-color;
+  border: solid $primary-color;
 }

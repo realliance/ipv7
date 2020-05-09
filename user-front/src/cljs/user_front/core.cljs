@@ -1,4 +1,5 @@
 (ns user-front.core
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require
    [reagent.core :as reagent :refer [atom]]
    [reagent.dom :as rdom]
@@ -6,7 +7,19 @@
    [reitit.frontend :as reitit]
    [clerk.core :as clerk]
    [clojure.core.match :as m]
+   [cljs-http.client :as http]
+   [cljs.core.async :refer [<!]]
+   [promesa.core :as p]
    [accountant.core :as accountant]))
+
+;; -------------------------
+;; Macros
+
+(defmacro await-> [thenable & thens]
+     `(-> ~thenable
+          ~@thens
+          ~'js/Promise.resolve
+          p/await))
 
 ;; -------------------------
 ;; Routes
@@ -39,10 +52,41 @@
 
 (defn get-route-element [tup]
   (let [[path name] tup]
-  [:a.navbar-item {:href path} name]))
+  [:a.col.3 {:href path} name]))
 
 (defn get-route-elements [r]
   (map (fn [tup] (get-route-element tup)) r))
+
+;; Request Functions
+
+
+
+
+(defn send-register [name email password repeat-password state]
+  (go (let [response (<! (http/post "http://localhost:4000/register"
+                                 {:json-params {:name @name :email @email :password @password}}))]
+      (reset! state (m/match [(:status response)]
+        [200]
+          :ok
+        [400]
+          :error
+        )
+      )
+    )
+  )
+)
+
+
+;; -------------------------
+;; Util Components
+
+(defn input-field [name type value]
+  [:div
+    [:label name]
+    [:input.card.w-100 {:type type
+             :value @value
+             :on-change #(reset! value (-> % .-target .-value))}]
+  ])
 
 ;; -------------------------
 ;; Page components
@@ -53,8 +97,23 @@
      [:h1 "Home"]]))
 
 (defn register-page []
-  (fn [] [:span.main
-          [:h1 "About user-front"]]))
+  (let [name (atom "")
+        email (atom "")
+        password (atom "")
+        repeat-password (atom "")
+        submit-status (atom :none)]
+    (fn [] [:span.main
+            [:h2 "Register"]
+            [:p @submit-status]
+            [:form
+              [input-field "Name" "text" name]
+              [input-field "Email" "text" email]
+              [input-field "Password" "password" password]
+              [input-field "Repeat Password" "password" repeat-password]
+              [:input.btn.primary {:type "button" :value "Submit"
+                :on-click #(send-register name email password repeat-password submit-status)}]
+            ]
+          ])))
 
 (defn login-page []
   (fn [] [:span.main
@@ -83,10 +142,10 @@
     (let [page (:current-page (session/get :route))
           logged-in (:logged-in (session/get :user))
           route-elements (get-route-elements (get-routes logged-in))]
-      [:div
-        [:header
-          [:h1 "IPv8"]
-          (conj [:p.navbar] route-elements)
+      [:div.c
+        [:div.row
+          [:h4.col "IPv8"]
+          (conj [:p.col] route-elements)
         ]
         [page]
       ])))
