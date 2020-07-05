@@ -52,18 +52,26 @@
 
 (defn get-route-element [tup]
   (let [[path name] tup]
-  [:a.col.3 {:href path} name]))
+  [:a.col.3 {:on-click #(accountant/navigate! path) :href "#" :key path} name]))
 
 (defn get-route-elements [r]
   (map (fn [tup] (get-route-element tup)) r))
 
+;; Utility Functions
+
+(defn populate-logged-in [response]
+  (m/match [(:status response)]
+    [200]
+      {:logged-in true :user (:user (:body response))}
+    [400]
+      {:logged-in false :user nil}
+    )
+)
+
 ;; Request Functions
 
-
-
-
 (defn send-register [name email password repeat-password state]
-  (go (let [response (<! (http/post "http://localhost:4000/register"
+  (go (let [response (<! (http/post "/api/register"
                                  {:json-params {:name @name :email @email :password @password}}))]
       (reset! state (m/match [(:status response)]
         [200]
@@ -76,6 +84,42 @@
   )
 )
 
+(defn send-login [email password state]
+  (go (let [response (<! (http/post "/api/login"
+                                 {:json-params {:email @email :password @password}}))]
+      (reset! state (m/match [(:status response)]
+        [200]
+          :ok
+        [400]
+          :error
+        )
+      )
+      (session/put! :user (populate-logged-in response))
+    )
+  )
+)
+
+(defn fetch-user-session [state]
+  (go (let [response (<! (http/get "/api/user"))]
+      (reset! state (m/match [(:status response)]
+        [200]
+          (:body response)
+        [400]
+          :not-logged-in
+        [500]
+          :oops
+        )
+      )
+    )
+  )
+)
+
+(defn get-user-session []
+  (go (let [response (<! (http/get "/api/user"))]
+      (session/put! :user (populate-logged-in response))
+    )
+  )
+)
 
 ;; -------------------------
 ;; Util Components
@@ -92,9 +136,13 @@
 ;; Page components
 
 (defn home-page []
+  (let [status (atom "Loading...")]
+  (fetch-user-session status)
   (fn []
     [:span.main
-     [:h1 "Home"]]))
+     [:h1 "Home"]
+     [:p @status]
+    ])))
 
 (defn register-page []
   (let [name (atom "")
@@ -116,12 +164,32 @@
           ])))
 
 (defn login-page []
-  (fn [] [:span.main
-          [:h1 "About user-front"]]))
+  (let [email (atom "")
+        password (atom "")
+        submit-status (atom :none)]
+    (fn [] [:span.main
+            [:h2 "Login"]
+            [:p @submit-status]
+            [:form
+              [input-field "Email" "text" email]
+              [input-field "Password" "password" password]
+              [:input.btn.primary {:type "button" :value "Submit"
+                :on-click #(send-login email password submit-status)}]
+            ]
+          ])))
 
 (defn profile-page []
-  (fn [] [:span.main
-          [:h1 "About user-front"]]))
+  (let [session (:user (session/get :user))
+        name (:name session)
+        email (:email session)
+        points (:points session)]
+    (println session)
+    (fn [] [:span.main
+            [:h1 name]
+            [:h3 email]
+            [:h3 points]
+          ]))
+)
 
 ;; -------------------------
 ;; Translate routes -> page components
@@ -167,11 +235,11 @@
         (reagent/after-render clerk/after-render!)
         (session/put! :route {:current-page (page-for current-page)
                               :route-params route-params})
-        (session/put! :user {:logged-in false})
         (clerk/navigate-page! path)
         ))
     :path-exists?
     (fn [path]
       (boolean (reitit/match-by-path router path)))})
   (accountant/dispatch-current!)
+  (session/put! :user {:logged-in false :user nil})
   (mount-root))

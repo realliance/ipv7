@@ -13,6 +13,17 @@ defmodule User.Router do
 
   alias User.{Controller}
 
+  get "/user" do
+    session = conn |> get_session
+    {status, body} =
+      case Controller.get_user(%{id: session["user"]}) do
+        nil -> {400, %{errors: "Not Logged In"}}
+        user -> {200, %{user: limit_user_return(user)}}
+      end
+
+    respond(conn, status, body)
+  end
+
   post "/register" do
     {status, body} =
       case Controller.register(conn.body_params) do
@@ -26,10 +37,11 @@ defmodule User.Router do
   post "/login" do
     body_params = process_body(conn.body_params)
 
-    {status, body} =
+    {conn, status, body} =
       case Controller.login(body_params) do
-        {true, user} -> {200, %{user: limit_user_return(user)}}
-        {false, _} -> {400, %{errors: "Invalid Email or Password"}}
+        {true, user} -> 
+          {conn |> put_session(:user, user.id), 200, %{user: limit_user_return(user)}}
+        {false, _} -> {conn, 400, %{errors: "Invalid Email or Password"}}
       end
 
     respond(conn, status, body)
@@ -54,7 +66,7 @@ defmodule User.Router do
 
   defp limit_user_return(user) do
     user
-      |> Map.take([:id, :name, :email, :points])
+    |> Map.take([:id, :name, :email, :points])
   end
 
   defp respond(conn, status, body) do

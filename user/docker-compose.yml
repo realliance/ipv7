@@ -18,3 +18,8 @@ services:
       POSTGRES_DB: users
     ports:
       - "5432:5432"
+  nginx-dev:
+    image: nginx:alpine
+    volumes:
+      - ./nginx-dev.conf:/etc/nginx/nginx.conf
+    network_mode: host

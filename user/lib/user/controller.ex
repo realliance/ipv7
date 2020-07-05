@@ -31,7 +31,7 @@ defmodule User.Controller do
     |> Repo.update()
   end
 
-  defp get_user(%{id: id} = _params), do: Repo.get(User, id)
-
-  defp get_user(params), do: Repo.get_by(User, %{email: params[:email]})
+  def get_user(%{id: nil} = _params), do: nil
+  def get_user(%{id: id} = _params), do: Repo.get(User, id)
+  def get_user(%{email: email} = _params), do: Repo.get_by(User, %{email: email})
 end
